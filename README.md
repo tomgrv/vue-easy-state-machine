@@ -61,10 +61,10 @@ export default {
 };
 ```
 
-In your component `<template>` section, wrap the state machine arround components:
-* State table is provide through `states` property
-* Each declared step is available through `step.current.XXX` boolean variable to trigger display of corresponding items with `v-if` or `v-show`
-* Component exposes `success()` and `failure()` methods to trigger evolution. You can use `restart()` to ... restart.
+In your component `<template>` section, wrap the state machine around components related to each state:
+* State table is provide through `states` prop.
+* Each declared step is available through `step.current.XXX` boolean variable; Only the current state is set to `true`, all other are set to `false`.
+* `easy-state-machine` component exposes `success()` and `failure()` methods to trigger evolution; You can use `restart()` to ... restart.
 
 ```html
 <easy-state-machine :states="states" #default="step">
@@ -145,7 +145,7 @@ You can manage complex branching with `success` and `failure` functions:
 
 ```js
 {
-   "success": () => { return this.isOnline ? 'stepXXX' : 'stepYYY' },
+   "success": () => { return this.myBooleanValue ? 'stepXXX' : 'stepYYY' },
    "failure": this.myBrancingFunction,
 }
 ```
@@ -155,7 +155,7 @@ Where `myBrancingFunction` is defined in `methods` block:
 ```js
 methods: {}
     myBrancingFunction() {
-        if ( /****/ )
+        if ( /** my test **/ )
             return 'stepXXX';
         else
             return 'setpYYY';
@@ -168,8 +168,8 @@ methods: {}
 #### `stateChange`
 
 * When: On each state change, after `onLeave` and before `onEnter` are called
-* First argument: previous index name
-* Second argument: next index name
+* First argument: previous step name
+* Second argument: next step name
 
 ### Transitions
 
