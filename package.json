@@ -1,0 +1,40 @@
+{
+  "name": "vue-easy-state-machine",
+  "version": "0.0.1",
+  "description": "Light state machine packaged as a vue component",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "vue",
+    "vuejs",
+    "component",
+    "state machine"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tomgrv/vue-easy-state-machine.git"
+  },
+  "author": "tomgrv",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tomgrv/vue-easy-state-machine/issues"
+  },
+  "homepage": "https://github.com/tomgrv/vue-easy-state-machine#readme",
+  "peerDependencies": {
+    "commitizen": "^3.0.5"
+  },
+  "dependencies": {
+    "vue": "^2.6.10"
+  },
+  "devDependencies": {
+    "conventional-changelog-cli": "^2.0.21",
+    "cz-conventional-changelog": "^2.1.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
