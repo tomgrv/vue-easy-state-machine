@@ -1,4 +1,13 @@
+<div align="center">
+
+[![npm version](https://img.shields.io/npm/v/vue-easy-state-machine.svg)](https://www.npmjs.com/package/vue-easy-state-machine)
+[![npm downloads](https://img.shields.io/npm/dt/vue-easy-state-machine.svg)](https://www.npmjs.com/package/vue-easy-state-machine)
+[![license](https://img.shields.io/github/license/tomgrv/vue-easy-state-machine.svg)](https://github.com/tomgrv/vue-easy-state-machine/blob/master/LICENSE)
+
+</div>
+
 # vue-easy-state-machine
+
 Light state machine packaged as a vue component
 
 ## Installation
@@ -9,19 +18,18 @@ $ npm install vue-easy-state-machine
 
 ## Overview
 
-This packages provides a `<easy-state-machine>` component managing a small state machine, idealy for forms
+This packages provides a `<easy-state-machine>` component managing a small state machine for UI management
 
 ## Usage
 
 Declare as Vue plugin:
 
 ```js
-import VueStateMachine from 'vue-easy-state-machine';
-Vue.use(VueStateMachine);
+import VueEasyStateMachine from 'vue-easy-state-machine';
+Vue.use(VueEasyStateMachine);
 ```
 
-In your component `<script>` section, declare your state table with steps & associated behavior:
-
+In your component `<script>` section, declare your state table with states & associated behavior:
 
 ```js
 export default {
@@ -44,9 +52,9 @@ export default {
 
                 //...
 
-                stepXXX:{
-                    success: 'stepYYY',
-                    failure: 'stepZZZ',
+                stateXXX:{
+                    success: 'stateYYY',
+                    failure: 'stateZZZ',
                 },
 
                 //...
@@ -62,25 +70,26 @@ export default {
 ```
 
 In your component `<template>` section, wrap the state machine around components related to each state:
+
 * State table is provide through `states` prop.
-* Each declared step is available through `step.current.XXX` boolean variable; Only the current state is set to `true`, all other are set to `false`.
+* Each declared state value is available through `#default` variable, in  `current` array; Only the active state is set to `true`, all other are set to `false`.
 * `easy-state-machine` component exposes `success()` and `failure()` methods to trigger evolution; You can use `restart()` to ... restart.
 
 ```html
-<easy-state-machine :states="states" #default="step">
-    <div v-if="step.current.askEmail">
+<easy-state-machine :states="states" #default="state">
+    <div v-if="state.current.askEmail">
         <input type="email" placeholder="Email" />
-        <button type="button" @click="step.success">Next</button>
+        <button type="button" @click="state.success">Next</button>
     </div>
-    <div v-if="step.current.askPassword">
+    <div v-if="state.current.askPassword">
         <input type="password" placeholder="Password" />
-        <button type="button" @click="step.success">Next</button>
-        <button type="button" @click="step.failure">Previous</button>
+        <button type="button" @click="state.success">Next</button>
+        <button type="button" @click="state.failure">Previous</button>
     </div>
-    <div v-if="step.current.login">
+    <div v-if="state.current.login">
         <strong>You are logged</strong>
-        <button type="button" @click="step.success">Init Session</button>
-        <button type="button" @click="step.failure">Restart</button>
+        <button type="button" @click="state.success">Init Session</button>
+        <button type="button" @click="state.failure">Restart</button>
     </div>
 </easy-state-machine>
 ```
@@ -89,7 +98,7 @@ And that's it !
 
 ## State Table Advanced Configuration
 
-Each step can handle following items:
+Each state can handle following items:
 
 ```js
 {
@@ -101,36 +110,35 @@ Each step can handle following items:
 }
 ```
 
-#### `entry`
+### `entry`
 
 * Type: `Boolean`
 * Default: `false`
-* Details: Indicates step to start with
-* Restrictions: Only one entry per state table. If multiple entries, only the first one is taken.
+* Details: Indicates state to start with
+* Restrictions: Only one `true` entry per state table. If multiple entries, only the first one is taken.
 
-#### `success`
+### `success`
 
 * Type: `String` or `Function`
 * Default: `undefined`
-* Details: Indicates step to go to in case of successful operation at current step. Can be a function returning step name.
+* Details: Indicates state to go to in case of successful operation at current state. Can be a function returning state name.
 * Restrictions: Will trigger state machine error if pointing nowhere....
 
-#### `failure`
+### `failure`
 
 * Type: `String` or `Function`
 * Default: value of `success` entry
-* Details: Indicates step to go to in case of failed operation at current step. Can be a function returning step name. 
+* Details: Indicates state to go to in case of failed operation at current state. Can be a function returning state name.
 * Restrictions: Will trigger state machine error if pointing nowhere...
 
-
-#### `onEnter`
+### `onEnter`
 
 * Type: `Function`
 * Default: `undefined`
 * Details: Function to call on state arrival
 * Restrictions: Must be current component functions, not called if empty
 
-#### `onLeave`
+### `onLeave`
 
 * Type: `Function`
 * Default: `undefined`
@@ -145,20 +153,20 @@ You can manage complex branching with `success` and `failure` functions:
 
 ```js
 {
-   "success": () => { return this.myBooleanValue ? 'stepXXX' : 'stepYYY' },
-   "failure": this.myBrancingFunction,
+   "success": () => { return this.myBooleanValue ? 'stateXXX' : 'stateYYY' },
+   "failure": this.myBranchingFunction,
 }
 ```
 
-Where `myBrancingFunction` is defined in `methods` block:
+Where `myBranchingFunction` is defined in `methods` block:
 
 ```js
 methods: {}
-    myBrancingFunction() {
+    myBranchingFunction() {
         if ( /** my test **/ )
-            return 'stepXXX';
+            return 'stateXXX';
         else
-            return 'setpYYY';
+            return 'stateYYY';
     }
 }
 ```
@@ -168,26 +176,26 @@ methods: {}
 #### `stateChange`
 
 * When: On each state change, after `onLeave` and before `onEnter` are called
-* First argument: previous step name
-* Second argument: next step name
+* First argument: previous state name
+* Second argument: next state name
 
 ### Transitions
 
 You can use with `<transition>` for a beautiful effect:
 
 ```html
-<easy-state-machine :states="states" #default="step">
+<easy-state-machine :states="states" #default="state">
     <transition name="transition-login" 
         enter-active-class="animated fadeIn" 
         leave-active-class="animated fadeOut"
         mode="out-in">
-        <div v-if="step.current.askEmail" key="askEmail">
+        <div v-if="state.current.askEmail" key="askEmail">
             ...
         </div>
-        <div v-if="step.current.askPassword" key="askPassword">
+        <div v-if="state.current.askPassword" key="askPassword">
             ...
         </div>
-        <div v-if="step.current.login" key="login">
+        <div v-if="state.current.login" key="login">
             ...
         </div>
     </transition>
