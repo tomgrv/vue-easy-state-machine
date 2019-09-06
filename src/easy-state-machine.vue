@@ -5,10 +5,11 @@
       :restart="restart"
       :failure="failure"
       :current="current"
+      :actions="actions"
       :index="index"
     >
       <div v-for="(value, field) in current" :key="field" v-if="value">
-        {{field}}
+        <h1>State {{field}}</h1>
         <button v-on:click="success">Success</button>
         <button v-on:click="failure">Failure</button>
         <button v-on:click="restart">Restart</button>
@@ -18,12 +19,15 @@
 </template>
 
 <script>
+import kindof from "kind-of";
+
 export default {
   data() {
     return {
       indexes: [],
       current: {},
-      tables: []
+      tables: [],
+      actions: {}
     };
   },
   props: {
@@ -49,47 +53,47 @@ export default {
   },
   methods: {
     isFunction(f) {
-      return f && {}.toString.call(f) === "[object Function]";
+      return kindof(f) == "function";
     },
     isString(x) {
-      return Object.prototype.toString.call(x) === "[object String]";
+      return kindof(x) == "string";
     },
     restart() {
       this.tables = [];
       this.indexes = [];
+      this.current = {};
       this.enterSubState(this.states);
+      this.setActions();
+    },
+    withIndexedSubState(i, s, err) {
+      if (i && this.subTable[i]) return s(this.subTable[i]);
+      else if (err) err(i);
     },
     enterSubState(t) {
       this.tables.push(t);
       const root = this.index ? this.index + "." : "";
-      Object.keys(this.subTable).forEach(k => {
-        if (this.subTable[k].entry) this.indexes.push(k);
-        this.current[root + k] = !!this.subTable[k].entry;
-      });
+      Object.keys(this.subTable).forEach(k =>
+        this.withIndexedSubState(k, s => {
+          if (s.entry) this.indexes.push(k);
+          this.current[root + k] = !!s.entry;
+        })
+      );
     },
-    leaveSubState() {
+    withSubState(s, err) {
+      return this.withIndexedSubState(this.subIndex, s, err);
+    },
+    leaveSubState(i) {
       this.indexes.pop();
       this.tables.pop();
+      this.next(i);
     },
-    success() {
-      if (this.subIndex) {
-        this.next(
-          this.subTable[this.subIndex].success || this.subTable[this.subIndex]
-        );
-      } else {
-        log.error("State Machine Ended, cannot success");
-      }
-    },
-    failure() {
-      if (this.subIndex) {
-        this.next(
-          this.subTable[this.subIndex].failure ||
-            this.subTable[this.subIndex].success ||
-            this.subTable[this.subIndex]
-        );
-      } else {
-        log.error("State Machine Ended, cannot fail");
-      }
+    setActions() {
+      this.withSubState(s => {
+        this.actions = {
+          success: () => this.success(),
+          failure: () => this.failure()
+        };
+      });
     },
     changeIndex(newIndex) {
       this.current[this.index] = false;
@@ -97,47 +101,64 @@ export default {
       this.$emit("stateChange", this.index, newIndex);
       this.index = newIndex;
     },
-    next(target) {
+    setError(msg) {
+      console.error("Error in state table: " + msg);
+      this.setNext("error");
+    },
+    setNext(target) {
+      console.log("Go to " + target);
+
       // Leave current state
-      if (this.isFunction(this.subTable[this.subIndex].onLeave)) {
-        this.subTable[this.subIndex].onLeave();
-      }
+      this.withSubState(s => {
+        if (this.isFunction(s.onLeave)) s.onLeave();
+      });
 
       // Manage state change
       if (this.isString(target)) {
-        const newIndex =
+        this.changeIndex(
           this.indexes.length > 1
             ? this.index.replace("." + this.subIndex, "." + target)
-            : target;
-        this.changeIndex(newIndex);
+            : target
+        );
       } else if (this.isFunction(target)) {
-        const result = target(this.index);
-        const newIndex = this.isString(result) ? result : undefined;
-        this.changeIndex(newIndex);
+        this.changeIndex(target(this.index));
       } else {
-        console.error("Cannot find next state : " + target);
+        this.setError("Cannot find state: " + target);
       }
 
       // Manage substates
-      if (!this.subIndex) {
-        //console.log("End of state machine");
+      if (!this.subIndex || target == "error") {
+        console.log("End of state machine");
       } else if (this.subIndex.startsWith("!")) {
-        // console.log("Leave substate");
-        const newIndex = this.subIndex.substring(1);
-        this.leaveSubState();
-        this.next(newIndex);
-      } else if (!this.subTable[this.subIndex]) {
-        //console.log("Error");
-        throw "Error in state definition";
-      } else if (this.subTable[this.subIndex].states) {
-        //console.log("Enter substate");
-        this.enterSubState(this.subTable[this.subIndex].states);
+        this.leaveSubState(this.subIndex.substring(1));
+      } else {
+        this.withSubState(
+          s => {
+            if (s.states) this.enterSubState(s.states);
+          },
+          e => this.setError("Cannot find table")
+        );
       }
 
+      // Manage possible actions
+      this.setActions();
+
       // Enter current state
-      if (this.isFunction(this.subTable[this.subIndex].onEnter)) {
-        this.subTable[this.subIndex].onEnter();
-      }
+      this.withSubState(s => {
+        if (this.isFunction(s.onEnter)) s.onEnter();
+      });
+    },
+    success() {
+      this.withSubState(
+        s => this.setNext(s.success || s),
+        e => this.setError("Cannot find table")
+      );
+    },
+    failure() {
+      this.withSubState(
+        s => this.setNext(s.failure || s.success || s),
+        e => this.setError("Cannot find table")
+      );
     }
   },
   created: function() {

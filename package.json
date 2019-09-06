@@ -1,10 +1,21 @@
 {
   "name": "vue-easy-state-machine",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Light state machine packaged as a vue component",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "sample": "npm run sample-app",
+    "sample-app": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "watch": "npm run sample-app -- --watch",
+    "watch-poll": "npm run watch -- --watch-poll",
+    "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "clean": "rimraf ./node_modules",
+    "reinstall": "npm run clean && npm install && npm dedupe",
+    "rebuild": "npm run reinstall && npm build",
+    "cz": "npx git-cz",
+    "cz-init": "commitizen init cz-conventional-changelog --save-dev --save-exact --force",
+    "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
+    "withproxy": "git config --global --add url.\\\"https://\\\".insteadOf ssh://"
   },
   "keywords": [
     "vue",
@@ -29,8 +40,13 @@
     "vue": "^2.6.10"
   },
   "devDependencies": {
+    "browser-sync": "^2.26.7",
+    "browser-sync-webpack-plugin": "^2.0.1",
     "conventional-changelog-cli": "^2.0.23",
-    "cz-conventional-changelog": "^3.0.2"
+    "cross-env": "^5.2.1",
+    "cz-conventional-changelog": "^3.0.2",
+    "laravel-mix-bundle": "^1.2.2",
+    "vue-template-compiler": "^2.6.10"
   },
   "config": {
     "commitizen": {
