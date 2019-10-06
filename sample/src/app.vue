@@ -14,6 +14,26 @@
         <h5 class="card-title">Custom Implementation</h5>
         <easy-state-machine :states="states" #default="steps">
           <h2>{{steps.index}}</h2>
+          <div class="progress">
+            <div
+              class="progress-bar"
+              role="progressbar"
+              style="width: 50%"
+              :aria-valuenow="steps.index | toNumber"
+              :aria-valuemin="1"
+              :aria-valuemax="3"
+            >{{steps.index | toNumber}}</div>
+          </div>
+          <ol class="breadcrumb">
+            <li
+              class="breadcrumb-item"
+              v-bind:class="{ active: value }"
+              v-for="(value, field) in steps.current"
+              :key="field"
+            >
+              <span v-bind:class="{ 'text-info': value }">{{field}}</span>
+            </li>
+          </ol>
           <div v-if="steps.current.step1" key="step1">
             <h3>This is step 1 - Simple link</h3>
             <a href="#" class @click="steps.success">Go to step 2 with success call</a>
@@ -48,7 +68,6 @@
   </div>
 </template>
 
-
 <script>
 export default {
   data() {
@@ -68,6 +87,11 @@ export default {
       },
       form: { check: false }
     };
+  },
+  filters: {
+    toNumber: function(value) {
+      return value.replace(/[^0-9]+/, "");
+    }
   },
   methods: {
     post(s) {
