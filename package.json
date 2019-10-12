@@ -1,6 +1,6 @@
 {
   "name": "vue-easy-state-machine",
-  "version": "0.0.3",
+  "version": "0.0.0",
   "description": "Light state machine packaged as a vue component",
   "main": "src/index.js",
   "scripts": {
@@ -12,10 +12,11 @@
     "clean": "rimraf ./node_modules",
     "reinstall": "npm run clean && npm install && npm dedupe",
     "rebuild": "npm run reinstall && npm build",
-    "cz": "npx git-cz",
-    "cz-init": "commitizen init cz-conventional-changelog --save-dev --save-exact --force",
-    "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
-    "withproxy": "git config --global --add url.\\\"https://\\\".insteadOf ssh://"
+    "cz-init": "npx commitizen init cz-conventional-changelog --save-dev --save-exact --force",
+    "withproxy": "git config --global --add url.\\\"https://\\\".insteadOf ssh://",
+    "test": "echo \"No test specified\" && exit 0",
+    "lint": "echo \"No lint specified\" && exit 0",
+    "prod": "echo \"No prod specified\" && exit 0"
   },
   "keywords": [
     "vue",
