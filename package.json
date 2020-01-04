@@ -38,16 +38,16 @@
     "commitizen": "^4.0.3"
   },
   "dependencies": {
-    "vue": "^2.6.10"
+    "vue": "^2.6.11"
   },
   "devDependencies": {
     "browser-sync": "^2.26.7",
-    "browser-sync-webpack-plugin": "^2.0.1",
-    "conventional-changelog-cli": "^2.0.23",
-    "cross-env": "^5.2.1",
+    "browser-sync-webpack-plugin": "^2.2.2",
+    "conventional-changelog-cli": "^2.0.31",
+    "cross-env": "^6.0.3",
     "cz-conventional-changelog": "^3.0.2",
-    "laravel-mix-bundle": "^1.2.2",
-    "vue-template-compiler": "^2.6.10"
+    "laravel-mix-bundle": "^2.0.0",
+    "vue-template-compiler": "^2.6.11"
   },
   "config": {
     "commitizen": {
